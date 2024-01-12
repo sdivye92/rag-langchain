@@ -1,4 +1,3 @@
-import os
 import torch
 from transformers import (
   AutoConfig,
@@ -8,9 +7,6 @@ from transformers import (
   pipeline
 )
 
-from transformers import BitsAndBytesConfig
-
-from langchain.text_splitter import CharacterTextSplitter
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_transformers import Html2TextTransformer
 from langchain_community.document_loaders import AsyncChromiumLoader
@@ -23,6 +19,10 @@ from langchain.prompts import PromptTemplate
 from langchain.schema.runnable import RunnablePassthrough
 from langchain_community.llms import HuggingFacePipeline
 from langchain.chains import LLMChain
+
+from langchain.retrievers import ParentDocumentRetriever
+from langchain.storage._lc_store import create_kv_docstore
+from langchain.storage import LocalFileStore
 
 import nest_asyncio
 #################################################################
@@ -99,6 +99,8 @@ def print_number_of_trainable_model_parameters(model):
 
 print(print_number_of_trainable_model_parameters(model))
 
+# pipeline params in below file
+# /home/atul/.local/lib/python3.10/site-packages/transformers/generation/configuration_utils.py:40
 text_generation_pipeline = pipeline(
     model=model,
     tokenizer=tokenizer,
@@ -119,11 +121,7 @@ articles = ["https://www.fantasypros.com/2023/11/rival-fantasy-nfl-week-10/",
             "https://www.fantasypros.com/2023/11/5-stats-to-know-before-setting-your-fantasy-lineup-week-10/",
             "https://www.fantasypros.com/2023/11/nfl-week-10-sleeper-picks-player-predictions-2023/",
             "https://www.fantasypros.com/2023/11/nfl-dfs-week-10-stacking-advice-picks-2023-fantasy-football/",
-            "https://www.fantasypros.com/2023/11/players-to-buy-low-sell-high-trade-advice-2023-fantasy-football/",
-            "https://www.fantasypros.com/2024/01/2024-nfl-free-agent-running-backs-saquon-barkley-josh-jacobs-austin-ekeler-devin-singletary/",
-            "https://www.fantasypros.com/2024/01/dynasty-rookie-draft-targets-marvin-harrison-jr-malik-nabers-rome-odunze-keon-coleman-2024/",
-            "https://www.fantasypros.com/2024/01/12-polarizing-players-early-fantasy-football-draft-rankings-2024/",
-            "https://www.fantasypros.com/2024/01/polarizing-draft-picks-rachaad-white-david-montgomery-jerome-ford-2024-fantasy-football/"]
+            "https://www.fantasypros.com/2023/11/players-to-buy-low-sell-high-trade-advice-2023-fantasy-football/"]
 
 # Scrapes the blogs above
 loader = AsyncChromiumLoader(articles)
@@ -141,7 +139,7 @@ text_splitter = RecursiveCharacterTextSplitter(
 #                                       chunk_overlap=0)
 chunked_documents = text_splitter.split_documents(docs_transformed)
 
-# embedding_model = SentenceTransformerEmbeddings(model_name=sentence_transformer)
+# # embedding_model = SentenceTransformerEmbeddings(model_name=sentence_transformer)
 embedding_model = HuggingFaceEmbeddings(model_name=sentence_transformer,
                                         model_kwargs=model_kwargs,
                                         encode_kwargs=encode_kwargs)
@@ -153,14 +151,26 @@ vector_db = Milvus(embedding_function=embedding_model,
                    connection_args={"host": "127.0.0.1", "port": "19530"})
 
 # Load chunked documents into the Milvus
-vector_db = Milvus.from_documents(
-    chunked_documents,
-    embedding_model,
-    connection_args={"host": "127.0.0.1", "port": "19530"},
-)
-# for docs in chunked_documents:
-#     _ = vector_db.add_documents([docs])
-retriever = vector_db.as_retriever()
+# vector_db = Milvus.from_documents(
+#     chunked_documents,
+#     embedding_model,
+#     connection_args={"host": "127.0.0.1", "port": "19530"},
+# )
+# # for docs in chunked_documents:
+# #     _ = vector_db.add_documents([docs])
+# retriever = vector_db.as_retriever()
+
+fs = LocalFileStore("/home/atul/Documents/langchain/db/docStore")
+store = create_kv_docstore(fs)
+
+retriever = ParentDocumentRetriever(
+            vectorstore=vector_db,
+            docstore=store,
+            child_splitter=text_splitter,
+            parent_splitter=text_splitter,
+        )
+
+retriever.add_documents(chunked_documents)
 
 # Create prompt template
 prompt_template = """
