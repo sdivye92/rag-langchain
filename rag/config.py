@@ -13,7 +13,7 @@ class EmbeddingConfig(dict):
 
 class MilvusConfig(dict):
     allowed = set(string.ascii_letters + string.digits + "_")
-    error_msg = "Invalid collection name. Collection name can only have letters, digits and underscore."
+    error_msg = "Invalid collection name '{}'. Collection name can only have letters, digits and underscore."
     def __init__(self, milvus_config):
         self.chunk_collection_name="ChunkStore"
         self.connection_args={
@@ -25,8 +25,8 @@ class MilvusConfig(dict):
         super().__init__(self.__dict__)
     
     def __validate_collection_names(self):
-        if set(self.chunk_collection_name + self.doc_collection_name)-self.allowed:
-            raise ValueError(self.error_msg)
+        if set(self.chunk_collection_name)-self.allowed:
+            raise ValueError(self.error_msg.format(self.chunk_collection_name))
 
 
 
