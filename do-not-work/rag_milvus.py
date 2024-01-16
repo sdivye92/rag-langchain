@@ -13,7 +13,7 @@ from transformers import (
 )
 import transformers
 
-from prompt import *
+from dummy.prompt import *
 
 sentence_transformer = 'BAAI/bge-large-en-v1.5'
 llm_model_name='mistralai/Mistral-7B-Instruct-v0.1'
