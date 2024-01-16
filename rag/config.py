@@ -44,7 +44,7 @@ class Config:
             "chunk_overlap" : 10,
             "separators" : ['\n\n', '\n', '.', ' ', '']
         }
-        llm_model="mistralai/Mistral-7B-Instruct-v0.1"
+        self.llm_model="mistralai/Mistral-7B-Instruct-v0.1"
 
         self.doc_store_path = "../docStore"
 
