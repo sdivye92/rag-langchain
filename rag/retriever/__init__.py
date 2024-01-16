@@ -1,1 +1,1 @@
-from .parent_chile_retriever import ParentChildRetiever
+from .parent_child_retriever import ParentChildRetriever
