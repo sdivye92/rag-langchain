@@ -2,3 +2,5 @@ volumes/
 __pycache__/
 scratch*
 dummy/
+db/docStore/*
+.idea
