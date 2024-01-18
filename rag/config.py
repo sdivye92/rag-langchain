@@ -52,6 +52,11 @@ class Config:
         config = {}
         with open(config_path, 'r') as config_f:
             config = json.load(config_f)
+            
+        base_config = {k:v for k, v in config.items() 
+                       if k not in ['milvus', 'embedding']}
+        
+        self.__dict__.update(base_config)
         
         embedding = config.get('embedding', {})
         milvus = config.get('milvus', {})
