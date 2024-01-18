@@ -19,11 +19,11 @@
         }
     },
     "milvus": {
-        "chunk_collection_name": "ChunkStore",
+        "chunk_collection_name": "LangChainCollection",
         "connection_args": {
             "host": "127.0.0.1",
             "port": "19530"
         }
     },
-    "doc_store_path": "/home/atul/Documents/langchain/db/docStore"
+    "doc_store_path": "/home/atul/Documents/rag_langchain/db/docStore"
 }
