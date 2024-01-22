@@ -9,9 +9,7 @@ from rag.db_connection_handler import OffMemoryDatabaseConnectorBuilder
 
 class ParentChildRetriever:
     def __init__(self, config: Config, db_connector_builder: OffMemoryDatabaseConnectorBuilder):
-        embed_model = self.__get_embedding_model(config)
         fs = LocalFileStore(config.doc_store_path)
-        self.embedding_model = embed_model
         self.chunk_db = db_connector_builder.get_connector(
             config.milvus.chunk_collection_name)
         # based on https://stackoverflow.com/a/77397998
@@ -25,6 +23,3 @@ class ParentChildRetriever:
             child_splitter=self.child_splitter,
             parent_splitter=self.parent_splitter,
         )
-
-    def __get_embedding_model(self, config: Config):
-        return HuggingFaceEmbeddings(**config.embedding)
