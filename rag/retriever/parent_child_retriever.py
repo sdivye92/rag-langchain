@@ -23,3 +23,6 @@ class ParentChildRetriever:
             child_splitter=self.child_splitter,
             parent_splitter=self.parent_splitter,
         )
+    
+    def add_documents(self, documents, ids=None, add_to_docstore=True):
+        self.retriever.add_documents(documents, ids, add_to_docstore)
