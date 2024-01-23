@@ -1,13 +1,12 @@
 from rag.config import Config
-from langchain_community.vectorstores import Milvus
-from langchain.retrievers import ParentDocumentRetriever
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.storage._lc_store import create_kv_docstore
 from langchain.storage import LocalFileStore
+from langchain.retrievers import ParentDocumentRetriever
+from langchain.storage._lc_store import create_kv_docstore
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from rag.db_connection_handler import OffMemoryDatabaseConnectorBuilder
+from ._base_retriever import Retriever
 
-class ParentChildRetriever:
+class ParentChildRetriever(Retriever):
     def __init__(self, config: Config, db_connector_builder: OffMemoryDatabaseConnectorBuilder):
         fs = LocalFileStore(config.doc_store_path)
         self.chunk_db = db_connector_builder.get_connector(
