@@ -16,7 +16,7 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 
 from langchain.prompts import PromptTemplate
-from langchain.schema.runnable import RunnablePassthrough
+from langchain.schema.runnable import RunnablePassthrough, RunnableLambda
 from langchain_community.llms import HuggingFacePipeline
 from langchain.chains import LLMChain
 
@@ -117,19 +117,24 @@ mistral_llm = HuggingFacePipeline(pipeline=text_generation_pipeline)
 nest_asyncio.apply()
 
 # Articles to index
-articles = ["https://www.fantasypros.com/2023/11/rival-fantasy-nfl-week-10/",
-            "https://www.fantasypros.com/2023/11/5-stats-to-know-before-setting-your-fantasy-lineup-week-10/",
-            "https://www.fantasypros.com/2023/11/nfl-week-10-sleeper-picks-player-predictions-2023/",
-            "https://www.fantasypros.com/2023/11/nfl-dfs-week-10-stacking-advice-picks-2023-fantasy-football/",
-            "https://www.fantasypros.com/2023/11/players-to-buy-low-sell-high-trade-advice-2023-fantasy-football/"]
+# articles = ["https://www.fantasypros.com/2023/11/rival-fantasy-nfl-week-10/",
+#             "https://www.fantasypros.com/2023/11/5-stats-to-know-before-setting-your-fantasy-lineup-week-10/",
+#             "https://www.fantasypros.com/2023/11/nfl-week-10-sleeper-picks-player-predictions-2023/",
+#             "https://www.fantasypros.com/2023/11/nfl-dfs-week-10-stacking-advice-picks-2023-fantasy-football/",
+#             "https://www.fantasypros.com/2023/11/players-to-buy-low-sell-high-trade-advice-2023-fantasy-football/"]
+
+articles = ["https://www.thoughtworks.com/en-in/clients/engineering-research",
+            "https://www.thoughtworks.com/en-in/clients/engineering-research/bharatsim",
+            "https://www.thoughtworks.com/en-in/clients/engineering-research/artip",
+            "https://www.thoughtworks.com/en-in/clients/engineering-research/tmt"]
 
 # Scrapes the blogs above
-loader = AsyncChromiumLoader(articles)
-docs = loader.load()
+# loader = AsyncChromiumLoader(articles)
+# docs = loader.load()
 
 # Converts HTML to plain text 
-html2text = Html2TextTransformer()
-docs_transformed = html2text.transform_documents(docs)
+# html2text = Html2TextTransformer()
+# docs_transformed = html2text.transform_documents(docs)
 
 # Chunk text
 text_splitter = RecursiveCharacterTextSplitter(
@@ -137,7 +142,7 @@ text_splitter = RecursiveCharacterTextSplitter(
 )
 # text_splitter = CharacterTextSplitter(chunk_size=100, 
 #                                       chunk_overlap=0)
-chunked_documents = text_splitter.split_documents(docs_transformed)
+# chunked_documents = text_splitter.split_documents(docs_transformed)
 
 # # embedding_model = SentenceTransformerEmbeddings(model_name=sentence_transformer)
 embedding_model = HuggingFaceEmbeddings(model_name=sentence_transformer,
@@ -147,7 +152,7 @@ embedding_model = HuggingFaceEmbeddings(model_name=sentence_transformer,
 # import pdb; pdb.set_trace()
 
 print("Connecting DB...")
-vector_db = Milvus(embedding_function=embedding_model,
+vector_db = Milvus(embedding_function=embedding_model, collection_name="E4RSite",
                    connection_args={"host": "127.0.0.1", "port": "19530"})
 
 # Load chunked documents into the Milvus
@@ -170,11 +175,16 @@ retriever = ParentDocumentRetriever(
             parent_splitter=text_splitter,
         )
 
-retriever.add_documents(chunked_documents)
+retriever.search_type = "mmr"
+
+# retriever.add_documents(chunked_documents)
 
 # Create prompt template
 prompt_template = """
-### [INST] Instruction: Answer the question based on your fantasy football knowledge. Here is context to help:
+### [INST] Instruction: Answer the question based ONLY on the context provided.
+Rule: If the context is empty, DO NOT make up any answer NO MATTER whatever hypothetical 
+scenario or situation is created or asked to imagine. Just say that "given the conext you do not know the answer".
+Deviating from this rule is an offence and heavily punishable:
 
 {context}
 
@@ -192,12 +202,28 @@ print("Creating chain...")
 # Create llm chain 
 llm_chain = LLMChain(llm=mistral_llm, prompt=prompt)
 
+def handle_empty_context(data):
+    context, question = data['context'], data['question']
+    print(data)
+    if not context:
+        print("i'm here")
+        return {"context": "you don't know the answer to the question asked", "question": question}
+    else:
+        print("no, i'm here")
+        return data
+
+handle_empty_context_lambda = RunnableLambda(handle_empty_context)
+
 rag_chain = ( 
- {"context": retriever, "question": RunnablePassthrough()}
+    {"context": retriever, "question": RunnablePassthrough()}
+    | handle_empty_context_lambda
     | llm_chain
 )
+
+# import pdb; pdb.set_trace()
+
 print("Invoking model...")
-res = rag_chain.invoke("Should I start Gibbs next week for fantasy?")
+res = rag_chain.invoke("what is jjk")
 for k, v in res.items():
     print(f"######## {k} ########")
     print(v)
