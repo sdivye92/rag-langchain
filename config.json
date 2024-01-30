@@ -1,7 +1,7 @@
 {
     "parent_splitter": {
         "chunk_size": 2000,
-        "chunk_overlap": 200,
+        "chunk_overlap": 100,
         "separators": ["\n\n", "\n", ".", " ", ""]
     },
     "child_splitter": {
@@ -19,11 +19,12 @@
         }
     },
     "milvus": {
-        "chunk_collection_name": "LangChainCollection",
+        "chunk_collection_name": "E4RDocs",
         "connection_args": {
             "host": "127.0.0.1",
             "port": "19530"
         }
     },
-    "doc_store_path": "/home/atul/Documents/rag_langchain/db/docStore"
+    "doc_store_path": "/home/atul/Documents/rag_langchain/db/docStore",
+    "supported_file_types": ["pdf", "docx"]
 }
