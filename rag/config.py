@@ -1,3 +1,4 @@
+import os
 import json
 import string
 
@@ -54,6 +55,7 @@ class Config:
 
 
         config = {}
+        config_path = os.path.abspath(os.path.expanduser(config_path))
         with open(config_path, 'r') as config_f:
             config = json.load(config_f)
             
