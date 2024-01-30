@@ -47,6 +47,10 @@ class Config:
         self.llm_model="mistralai/Mistral-7B-Instruct-v0.1"
 
         self.doc_store_path = "../docStore"
+        
+        self.supported_file_types = [
+            "pdf", "docx"
+        ]
 
 
         config = {}
