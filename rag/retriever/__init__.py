@@ -1,1 +1,2 @@
+from ._base_retriever import Retriever
 from .parent_child_retriever import ParentChildRetriever
