@@ -1,3 +1,4 @@
+import re
 import torch
 from transformers import (
   AutoConfig,
@@ -207,7 +208,8 @@ def handle_empty_context(data):
     print(data)
     if not context:
         print("i'm here")
-        return {"context": "you don't know the answer to the question asked", "question": question}
+        return {"context": f"you don't know the answer to the question: {question}.\
+            So just say that you do not know the answer given the context", "question": question}
     else:
         print("no, i'm here")
         return data
