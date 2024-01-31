@@ -12,11 +12,11 @@ from pymilvus import connections, Collection
 from langchain.docstore.document import Document
 
 class DocumentHandler(ABC):
+    FILE_TYPE=None
     def __init__(self, dir_path, retrierver: Retriever, config: Config):
         self.retriever=retrierver
         self.config=config
         self.dir_path=dir_path
-        self.file_type=None
         self.files_set=set([])
     
     @abstractmethod
@@ -72,8 +72,7 @@ class DocumentHandler(ABC):
         
     
     def update_database(self):
-        import pdb; pdb.set_trace()
-        files_in_dir = set(glob(os.path.join(self.dir_path,f"**/*.{self.file_type}"), recursive=True))
+        files_in_dir = set(glob(os.path.join(self.dir_path,f"**/*.{self.FILE_TYPE}"), recursive=True))
         if files_to_add:=(files_in_dir - self.files_set):
             self.load_documents(files_to_add)
         if files_to_remove:=(self.files_set - files_in_dir):
