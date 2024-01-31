@@ -176,7 +176,7 @@ retriever = ParentDocumentRetriever(
             parent_splitter=text_splitter,
         )
 
-retriever.search_type = "mmr"
+# retriever.search_type = "mmr"
 
 # retriever.add_documents(chunked_documents)
 
