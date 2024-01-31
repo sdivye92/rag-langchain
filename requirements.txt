@@ -22,3 +22,4 @@ pytest
 mock
 langchain
 langchain_community
+python-pptx
