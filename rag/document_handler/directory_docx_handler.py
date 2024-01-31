@@ -4,9 +4,9 @@ from ._base_document_handler import DocumentHandler
 from rag.retriever import Retriever
 
 class DirectoryDocxHandler(DocumentHandler):
+    FILE_TYPE = "docx"
     def __init__(self, dir_path, retriever: Retriever, config: Config):
         super().__init__(dir_path, retriever, config)
-        self.file_type = "docx"
         self._metadata_tags = ['source', 'file_directory', 'filename', 'category']
     
     def _get_doc_from_file(self, file):
