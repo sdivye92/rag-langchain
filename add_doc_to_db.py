@@ -6,7 +6,7 @@ from rag.retriever import ParentChildRetriever
 from rag.document_handler import DirectoryDocumentHandler
 
 logging_format = "[%(filename)s:%(lineno)s - %(funcName)s()] [%(levelname)s] :: %(message)s"
-logging.basicConfig(format=logging_format, datefmt='%d-%b-%y %H:%M:%S')
+logging.basicConfig(format=logging_format, datefmt='%d-%b-%y %H:%M:%S', level=logging.INFO)
 
 Config.init("./config.json")
 config = Config.get_instance()
