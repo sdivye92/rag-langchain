@@ -1,7 +1,7 @@
 import os
 import json
+import torch
 import string
-
 
 class EmbeddingConfig(dict):
     def __init__(self, embedding_config):
@@ -29,7 +29,38 @@ class MilvusConfig(dict):
         if set(self.chunk_collection_name)-self.allowed:
             raise ValueError(self.error_msg.format(self.chunk_collection_name))
 
-
+class LLMConfig:
+    def __init__(self, llm_config):
+        self.model_name='mistralai/Mistral-7B-Instruct-v0.1'
+        self.params = {
+            "temperature":0.2,
+            "repetition_penalty":1.1,
+            "return_full_text":True,
+            "max_new_tokens":10000,
+            "do_sample":True
+        }
+        self.__dict__.update(llm_config)
+        
+class BitsAndBytesConfig(dict):
+    def __init__(self, bnb_config):
+        # Activate 4-bit precision base model loading
+        use_4bit = True
+        # Compute dtype for 4-bit base models
+        bnb_4bit_compute_dtype = "float16"
+        # Quantization type (fp4 or nf4)
+        bnb_4bit_quant_type = "nf4"
+        # Activate nested quantization for 4-bit base models (double quantization)
+        use_nested_quant = False
+        # Set up quantization config
+        compute_dtype = getattr(torch, bnb_4bit_compute_dtype)
+        
+        self.load_in_4bit=use_4bit
+        self.bnb_4bit_quant_type=bnb_4bit_quant_type
+        self.bnb_4bit_compute_dtype=compute_dtype
+        self.bnb_4bit_use_double_quant=use_nested_quant
+        
+        self.__dict__.update(bnb_config)
+        super().__init__(self.__dict__)
 
 class Config:
     __instance = None
@@ -45,7 +76,6 @@ class Config:
             "chunk_overlap" : 10,
             "separators" : ['\n\n', '\n', '.', ' ', '']
         }
-        self.llm_model="mistralai/Mistral-7B-Instruct-v0.1"
 
         self.doc_store_path = "../docStore"
         
@@ -66,9 +96,13 @@ class Config:
         
         embedding = config.get('embedding', {})
         milvus = config.get('milvus', {})
+        bnb = config.get('bits_and_bytes', {})
+        llm = config.get('llm', {})
 
         self.embedding = EmbeddingConfig(embedding)
         self.milvus = MilvusConfig(milvus)
+        self.llm = LLMConfig(llm)
+        self.bits_and_bytes = BitsAndBytesConfig(bnb)
 
 
     @classmethod

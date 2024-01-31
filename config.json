@@ -25,6 +25,21 @@
             "port": "19530"
         }
     },
+    "bits_and_bytes": {
+        "load_in_4bit":  true,
+        "bnb_4bit_quant_type":  "nf4",
+        "bnb_4bit_use_double_quant":  false
+    },
+    "llm": {
+        "model_name": "mistralai/Mistral-7B-Instruct-v0.1",
+        "params": {
+            "temperature": 0.2,
+            "repetition_penalty": 1.1,
+            "return_full_text": true,
+            "max_new_tokens": 10000,
+            "do_sample": true
+        }
+    },
     "doc_store_path": "/home/atul/Documents/rag_langchain/db/docStore",
-    "supported_file_types": ["pdf", "docx"]
+    "supported_file_types": ["pdf", "docx", "pptx"]
 }
