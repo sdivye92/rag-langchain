@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 from langchain.docstore.document import Document
 
 class Retriever(ABC):
+    def __init__(self):
+        self.retriever=None
     
     @abstractmethod
     def add_documents(self, documents: List[Document],
