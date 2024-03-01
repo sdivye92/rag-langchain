@@ -122,23 +122,25 @@ files = ["~/Documents/test/e4r_site.pdf",
          "~/Documents/test/e4r_site_3.pdf",
          "~/Documents/test/e4r_site_4.pdf"]
 
-chunked_documents = []
-for file in files:
-    pdf_html_loader = PDFMinerPDFasHTMLLoader(file)
-    html = pdf_html_loader.load()[0]
-    html2text = Html2TextTransformer()
-    docs = html2text.transform_documents([html])
-    for doc in docs:
-        doc.page_content = re.sub(r"(\n\n)", "\n",
-                                    re.sub(r"(?<!\n)\n(?!\n)", "",
-                                            doc.page_content))
-    chunked_documents.extend(docs)
+# chunked_documents = []
+# for file in files:
+#     pdf_html_loader = PDFMinerPDFasHTMLLoader(file)
+#     html = pdf_html_loader.load()[0]
+#     html2text = Html2TextTransformer()
+#     docs = html2text.transform_documents([html])
+#     for doc in docs:
+#         doc.page_content = re.sub(r"(\n\n)", "\n",
+#                                     re.sub(r"(?<!\n)\n(?!\n)", "",
+#                                             doc.page_content))
+#     chunked_documents.extend(docs)
 
 # Chunk text
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=500, chunk_overlap=10, separators=['\n\n', '\n', '.']
+    chunk_size=2000, chunk_overlap=100, separators=["\n\n", "\n", ".", " ", ""]
 )
-
+text_splitter2 = RecursiveCharacterTextSplitter(
+    chunk_size=500, chunk_overlap=10, separators=["\n\n", "\n", ".", " ", ""]
+)
 embedding_model = HuggingFaceEmbeddings(model_name=sentence_transformer,
                                         model_kwargs=model_kwargs,
                                         encode_kwargs=encode_kwargs)
@@ -146,22 +148,22 @@ embedding_model = HuggingFaceEmbeddings(model_name=sentence_transformer,
 # import pdb; pdb.set_trace()
 
 print("Connecting DB...")
-vector_db = Milvus(embedding_function=embedding_model, collection_name="E4RSiteDocs",
+vector_db = Milvus(embedding_function=embedding_model, collection_name="E4RDocs",
                    connection_args={"host": "127.0.0.1", "port": "19530"})
 
-fs = LocalFileStore("/home/atul/Documents/db")
+fs = LocalFileStore("/home/atul/Documents/rag_langchain/db/docStore")
 store = create_kv_docstore(fs)
 
 retriever = ParentDocumentRetriever(
             vectorstore=vector_db,
             docstore=store,
             child_splitter=text_splitter,
-            parent_splitter=text_splitter,
+            parent_splitter=text_splitter2,
         )
 
 # retriever.search_type = "mmr"
 
-retriever.add_documents(chunked_documents)
+# retriever.add_documents(chunked_documents)
 
 # Create prompt template
 prompt_template = """
@@ -187,6 +189,7 @@ print("Creating chain...")
 llm_chain = LLMChain(llm=mistral_llm, prompt=prompt)
 
 def handle_empty_context(data):
+    # import pdb; pdb.set_trace()
     context, question = data['context'], data['question']
     print(data)
     if not context:
