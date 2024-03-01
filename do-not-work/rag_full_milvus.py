@@ -65,6 +65,7 @@ use_nested_quant = False
 #################################################################
 compute_dtype = getattr(torch, bnb_4bit_compute_dtype)
 
+# https://huggingface.co/docs/transformers/main/en/quantization?bnb=8-bit#bitsandbytes
 bnb_config = BitsAndBytesConfig(
     load_in_4bit=use_4bit,
     bnb_4bit_quant_type=bnb_4bit_quant_type,
