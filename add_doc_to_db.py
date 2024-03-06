@@ -16,6 +16,6 @@ embedding_model = HuggingFaceEmbeddings(model_name=config.embedding.model_name,
                                         encode_kwargs=config.embedding.encode_kwargs)
 mcb = MilvusConnectorBuilder(config.milvus.connection_args, embedding_model)
 pcr = ParentChildRetriever(config, mcb)
-directory_doc_handler = DirectoryDocumentHandler("~/Documents/e4r_docs/E4R SOQ", pcr, config)
+directory_doc_handler = DirectoryDocumentHandler("~/Documents/e4r_docs", pcr, config)
 
 directory_doc_handler.update_database()
