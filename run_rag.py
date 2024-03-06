@@ -1,5 +1,6 @@
 from langchain.prompts import PromptTemplate
 from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain.memory import ConversationBufferMemory
 from rag.config import Config
 from rag.db_connection_handler import MilvusConnectorBuilder
 from rag.retriever import ParentChildRetriever
@@ -27,20 +28,33 @@ Deviating from this rule is an offence and heavily punishable:
 
 {context}
 
+{chat_history}
+
 ### QUESTION:
 {question} [/INST]
  """
-
+memory_key = "chat_history"
+input_key = "question"
 # Create prompt from prompt template 
 prompt = PromptTemplate(
-    input_variables=["context", "question"],
+    input_variables=["context", input_key, memory_key],
     template=prompt_template,
 )
-
-e4r_doc_chain = Chain(pipeline, prompt, retriever)
+memory = ConversationBufferMemory(memory_key=memory_key,
+                                  input_key=input_key)
+e4r_doc_chain = Chain(pipeline, prompt, retriever, memory)
 
 print("Invoking model...")
-res = e4r_doc_chain.invoke("what is bharatsim")
-for k, v in res.items():
-    print(f"######## {k} ########")
-    print(v)
+while True:
+    question = input("Human:\n")
+    if question.strip().lower() in ["exit", "quit"]:
+        break
+    else:
+        res = e4r_doc_chain.invoke(question)
+        print(f"######## history ########")
+        print(res['context'])
+        print(f"######## history ########")
+        print(f"AI:\n{res['text'].strip()}\n")
+        # for k, v in res.items():
+        #     print(f"######## {k} ########")
+        #     print(v)
