@@ -2,7 +2,7 @@ from glob import glob
 import imp
 import logging
 import os
-from typing import List
+from typing import List, Iterable
 from abc import ABC, abstractmethod
 
 import pandas as pd
@@ -23,7 +23,7 @@ class DocumentHandler(ABC):
     def _get_doc_from_file(self, file: str) -> List[Document]:
        pass
     
-    def load_documents(self, files: List[str]):
+    def load_documents(self, files: Iterable[str]):
         for file in files:
             try:
                 logging.info(f"Trying to add file to vectorstore: {file}")
@@ -34,7 +34,7 @@ class DocumentHandler(ABC):
             except Exception as e:
                 logging.exception(e)
     
-    def remove_documents(self, files: List[str]):
+    def remove_documents(self, files: Iterable[str]):
         for file in files:
             try:
                 logging.info(f"Trying to remove file from vectorstore: {file}")
@@ -66,7 +66,7 @@ class DocumentHandler(ABC):
             result.extend(res)
         doc_ids = pd.DataFrame(result)\
                     .drop_duplicates('doc_id', ignore_index=True)['doc_id'].to_list()
-        self.retriever.doc_db.mdelete(doc_ids)
+        self.retriever.doc_db.mdelete(doc_ids) # pyright: ignore[reportOptionalMemberAccess]
         collection.delete(expr=expr)
         connections.disconnect("default")
         

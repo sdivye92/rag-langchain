@@ -1,4 +1,4 @@
-from langchain_community.vectorstores import Milvus
+from langchain_community.vectorstores.milvus import Milvus
 from ._base_db_connector_builder import OffMemoryDatabaseConnectorBuilder
 
 class MilvusConnectorBuilder(OffMemoryDatabaseConnectorBuilder):
