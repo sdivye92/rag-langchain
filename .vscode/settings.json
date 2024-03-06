@@ -9,5 +9,9 @@
     "mypy-type-checker.severity": {
         "import-untyped": "Information",
         "var-annotated":  "Information"
-    }
+    },
+    // "python.analysis.diagnosticSeverityOverrides": {
+    //     "reportUnusedImport": "information",
+    //     "reportMissingImports": "none"
+    // }
 }
