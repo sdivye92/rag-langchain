@@ -1,7 +1,7 @@
 import os
 import logging
 from enum import Enum
-from typing import List
+from typing import List, Literal
 from rag.document_handler import (
     DocumentHandler,
     DirectoryDocxHandler,
@@ -11,10 +11,11 @@ from rag.document_handler import (
 from rag.config import Config
 from rag.retriever import Retriever
 
-class FileTypes(Enum):
-    pdf: DocumentHandler = DirectoryPDFHandler
-    docx: DocumentHandler = DirectoryDocxHandler
-    pptx: DocumentHandler = DirectoryPptxHandler
+FileTypes = {
+    "pdf": DirectoryPDFHandler,
+    "docx": DirectoryDocxHandler,
+    "pptx": DirectoryPptxHandler
+}
 
 class DirectoryDocumentHandler:
     def __init__(self, dir_path, retriever: Retriever, config: Config):
@@ -23,7 +24,7 @@ class DirectoryDocumentHandler:
         self.config = config
         try:
             self.file_type_handlers: List[DocumentHandler] = [
-                FileTypes[file_type].value(self.dir_path, self.retriever, self.config)
+                FileTypes[file_type](self.dir_path, self.retriever, self.config)
                     for file_type in config.supported_file_types
             ]
         except Exception as e:

@@ -2,7 +2,7 @@ from glob import glob
 import imp
 import logging
 import os
-from typing import List, Iterable
+from typing import List, Iterable, Sequence
 from abc import ABC, abstractmethod
 
 import pandas as pd
@@ -20,14 +20,14 @@ class DocumentHandler(ABC):
         self.files_set=set([])
     
     @abstractmethod
-    def _get_doc_from_file(self, file: str) -> List[Document]:
+    def _get_doc_from_source(self, source: str) -> Sequence[Document]:
        pass
     
     def load_documents(self, files: Iterable[str]):
         for file in files:
             try:
                 logging.info(f"Trying to add file to vectorstore: {file}")
-                docs = self._get_doc_from_file(file)
+                docs = self._get_doc_from_source(file)
                 self.add_documents_to_database(docs)
                 self.files_set.add(file)
                 logging.info(f"File added successfully to vectorstore: {file}")
@@ -44,7 +44,7 @@ class DocumentHandler(ABC):
             except Exception as e:
                 logging.exception(e)
     
-    def add_documents_to_database(self, doc_list: List[Document]):
+    def add_documents_to_database(self, doc_list: Sequence[Document]):
         self.retriever.add_documents(doc_list)
     
     def delete_document_from_database(self, file: str):

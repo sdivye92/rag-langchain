@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Union, Sequence
 from abc import ABC, abstractmethod
 from langchain_core.stores import BaseStore
 from langchain_community.vectorstores import VectorStore
@@ -11,7 +11,7 @@ class Retriever(ABC):
         self.chunk_db: Union[VectorStore, None]=None
     
     @abstractmethod
-    def add_documents(self, documents: List[Document],
+    def add_documents(self, documents: Sequence[Document],
                       ids: List[str] | None = None,
                       add_to_docstore: bool = True):
         pass

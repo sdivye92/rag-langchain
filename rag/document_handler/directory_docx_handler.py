@@ -9,8 +9,8 @@ class DirectoryDocxHandler(DocumentHandler):
         super().__init__(dir_path, retriever, config)
         self._metadata_tags = ['source', 'file_directory', 'filename', 'category']
     
-    def _get_doc_from_file(self, file):
-        docx_loader = UnstructuredWordDocumentLoader(file, mode="elements")
+    def _get_doc_from_source(self, source):
+        docx_loader = UnstructuredWordDocumentLoader(source, mode="elements")
         docs = docx_loader.load()
         for doc in docs:
             metadata = doc.metadata

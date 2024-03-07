@@ -10,8 +10,8 @@ class DirectoryPDFHandler(DocumentHandler):
     def __init__(self, dir_path, retriever: Retriever, config: Config):
         super().__init__(dir_path, retriever, config)
     
-    def _get_doc_from_file(self, file):
-        pdf_html_loader = PDFMinerPDFasHTMLLoader(file)
+    def _get_doc_from_source(self, source):
+        pdf_html_loader = PDFMinerPDFasHTMLLoader(source)
         html = pdf_html_loader.load()[0]
         html2text = Html2TextTransformer()
         docs = html2text.transform_documents([html])

@@ -13,7 +13,7 @@ class DirectoryPptxHandler(DocumentHandler):
         super().__init__(dir_path, retriever, config)
         self._metadata_tags = ['source', 'file_directory', 'filename', 'category']
     
-    def _get_doc_from_file(self, file):
-        pptx_loader = UnstructuredPowerPointLoader(file)
+    def _get_doc_from_source(self, source):
+        pptx_loader = UnstructuredPowerPointLoader(source)
         docs = pptx_loader.load()
         return docs
