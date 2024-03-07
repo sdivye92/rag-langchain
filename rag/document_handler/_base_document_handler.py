@@ -50,7 +50,7 @@ class DocumentHandler(ABC):
     def delete_document_from_database(self, file: str):
         _ = connections.connect(**self.config.milvus.connection_args)
         collection = Collection(self.config.milvus.chunk_collection_name)
-        expr = f"file_path == '{file}'"
+        expr = f"source == '{file}'"
         output_fields=["doc_id"]
         batch_size = 10
         limit = -1
