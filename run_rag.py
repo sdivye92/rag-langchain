@@ -1,3 +1,4 @@
+import os
 from langchain.prompts import PromptTemplate
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.memory import ConversationBufferMemory
@@ -5,7 +6,7 @@ from rag.config import Config
 from rag.db_connection_handler import MilvusConnectorBuilder
 from rag.retriever import ParentChildRetriever
 from rag.llm import LLMModelGenerator, PipelineGenerator
-from rag.llm import Chain
+from rag.llm import Chain, Gemini, OllamaMistral
 
 Config.init("./config.json")
 config = Config.get_instance()
@@ -17,8 +18,13 @@ mcb = MilvusConnectorBuilder(config.milvus.connection_args,
 pcr = ParentChildRetriever(config, mcb)
 retriever = pcr.retriever
 
-model = LLMModelGenerator.get_model(config)
-pipeline = PipelineGenerator.get_pipeline(config, model)
+# model = LLMModelGenerator.get_model(config)
+# pipeline = PipelineGenerator.get_pipeline(config, model)
+
+# pipeline = Gemini.get_llm(google_api_key=os.getenv("GOOGLE_API_KEY"), 
+#                     verbose=True, temperature=0.5)
+
+pipeline = OllamaMistral.get_llm('http://localhost:11434')
 
 prompt_template = """
 ### [INST] Instruction: Answer the question based ONLY on the context provided.
